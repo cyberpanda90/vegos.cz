@@ -1,11 +1,6 @@
 <?php
-/*
- * Template Name: Recept
- * Template Post Type: recipe
- */
    
  get_header();  ?>
-kugouighliuh
 <main id="main-content">
     <?php
     while ( have_posts() ) : the_post(); ?>
