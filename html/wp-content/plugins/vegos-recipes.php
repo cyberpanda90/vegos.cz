@@ -126,7 +126,7 @@ function vegos_register_food_type_taxonomy() {
 add_action('init', 'vegos_register_food_type_taxonomy');
 
 function vegos_add_recipe_steps_metabox() {
-    add_meta_box('recipe_steps_metabox', 'Kroky receptu', 'vegos_recipe_steps_metabox_callback', 'recipe', 'normal', 'high');
+    add_meta_box('recipe_steps_metabox', 'Postup přípravy', 'vegos_recipe_steps_metabox_callback', 'recipe', 'normal', 'high');
 }
 add_action('add_meta_boxes', 'vegos_add_recipe_steps_metabox');
 
@@ -147,7 +147,7 @@ function vegos_recipe_steps_metabox_callback($post) {
         echo '<p><textarea name="vegos_recipe_steps[]" style="width:100%;" rows="4"></textarea></p>';
     }
     echo '</div>';
-    echo '<button type="button" id="vegos_add_step_button">Přidat další</button>';
+    echo '<button type="button" id="vegos_add_step_button">Přidat další krok</button>';
 
     // JavaScript pro přidání dalších kroků
     ?>
@@ -230,6 +230,8 @@ function vegos_ingredients_metabox_callback($post) {
                     <option value="ks" ${unit === "ks" ? 'selected' : ''}>ks</option>
                     <option value="l" ${unit === "l" ? 'selected' : ''}>l</option>
                     <option value="ml" ${unit === "ml" ? 'selected' : ''}>ml</option>
+                    <option value="lžíce" ${unit === "lžíce" ? 'selected' : ''}>lžíce</option>
+                    <option value="lžička" ${unit === "lžička" ? 'selected' : ''}>lžička</option>
                 </select>
                 <button type="button" class="button vegos-remove-ingredient-button">Odstranit</button>
             </div>`;
