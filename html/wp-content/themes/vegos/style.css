@@ -1,0 +1,40 @@
+/*
+Theme Name: Vegoš
+Theme URI: https://vegos.cz
+Author: Vegoš
+Author URI: https://vegos.cz
+Description: Speciálně vyrobeno pro vegoš.cz
+Requires at least: 6.1
+Tested up to: 6.4
+Requires PHP: 5.6
+Version: 1.0
+Text Domain: vegos
+*/
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+#page {
+    margin: 20px;
+}
+
+header#header {
+    margin-bottom: 40px;
+}
+
+header#header h1 {
+    margin: 0;
+}
+
+article.post {
+    margin-bottom: 20px;
+}
+
+footer#footer {
+    margin-top: 20px;
+    text-align: center;
+}
