@@ -35,3 +35,53 @@ function vegos_save_my_ingredients() {
     }
 }
 add_action( 'template_redirect', 'vegos_save_my_ingredients' );
+
+function handle_add_recipe_form_submission() {
+    if ( ! isset( $_POST['add_recipe_nonce_field'] ) 
+        || ! wp_verify_nonce( $_POST['add_recipe_nonce_field'], 'add_recipe_nonce' ) ) {
+        wp_die( 'Ověření selhalo, prosím zkuste to znovu.' );
+    }
+
+    $recipe_title = sanitize_text_field( $_POST['recipe_title'] );
+    $recipe_content = sanitize_textarea_field( $_POST['recipe_content'] );
+
+    $recipe_id = wp_insert_post([
+        'post_title'   => $recipe_title,
+        'post_content' => $recipe_content,
+        'post_status'  => 'publish',
+        'post_type'    => 'recipe',
+    ]);
+
+    if ($recipe_id && !is_wp_error($recipe_id)) {
+        if (isset($_POST['vegos_recipe_steps']) && is_array($_POST['vegos_recipe_steps'])) {
+            $steps = array_map('sanitize_textarea_field', $_POST['vegos_recipe_steps']);
+            update_post_meta($recipe_id, '_vegos_recipe_steps', $steps);
+        }
+
+        if (isset($_POST['vegos_recipe_ingredients_name']) && is_array($_POST['vegos_recipe_ingredients_name'])) {
+            $ingredients_data = [];
+            $names = $_POST['vegos_recipe_ingredients_name'];
+            $amounts = $_POST['vegos_recipe_ingredients_amount'];
+            $units = $_POST['vegos_recipe_ingredients_unit'];
+
+            foreach ($names as $index => $name) {
+                if (!empty($name)) {
+                    $recipe_ingredients[] = [
+                        'name' => sanitize_text_field($name),
+                        'amount' => sanitize_text_field($amounts[$index]),
+                        'unit' => sanitize_text_field($units[$index]),
+                    ];
+                }
+            }
+
+            update_post_meta($recipe_id, '_vegos_recipe_ingredients', $recipe_ingredients);
+        }
+
+        wp_redirect(get_permalink($recipe_id));
+        exit;
+    } else {
+        wp_die('Při vytváření receptu došlo k chybě.');
+    }
+}
+add_action('admin_post_add_recipe', 'handle_add_recipe_form_submission');
+add_action('admin_post_nopriv_add_recipe', 'handle_add_recipe_form_submission');
