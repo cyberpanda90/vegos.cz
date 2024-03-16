@@ -85,3 +85,79 @@ function handle_add_recipe_form_submission() {
 }
 add_action('admin_post_add_recipe', 'handle_add_recipe_form_submission');
 add_action('admin_post_nopriv_add_recipe', 'handle_add_recipe_form_submission');
+
+function handle_add_to_favorites() {
+    if (!isset($_POST['recipe_id'])) {
+        wp_send_json_error(['message' => 'Není zadáno ID receptu.']);
+        wp_die();
+    }
+
+    $recipe_id = intval($_POST['recipe_id']);
+    $user_id = get_current_user_id();
+
+    if (!$recipe_id || !$user_id) {
+        wp_send_json_error(['message' => 'Nastala chyba.']);
+        wp_die();
+    }
+
+    $current_favorites = get_user_meta($user_id, 'favorite_recipes', true);
+    if (empty($current_favorites)) {
+        $current_favorites = [];
+    } elseif (!is_array($current_favorites)) {
+        $current_favorites = [$current_favorites];
+    }
+
+    if (!in_array($recipe_id, $current_favorites)) {
+        $current_favorites[] = $recipe_id;
+        update_user_meta($user_id, 'favorite_recipes', $current_favorites);
+        wp_send_json_success(['message' => 'Recept byl přidán do oblíbených.']);
+    } else {
+        wp_send_json_success(['message' => 'Tento recept je již ve vašich oblíbených.']);
+    }
+
+    wp_die();
+}
+
+function handle_add_to_favorites_nopriv() {
+    wp_send_json_error(['message' => 'Musíte být přihlášeni.']);
+    wp_die();
+}
+
+
+// Připojení AJAX akcí
+add_action('wp_ajax_add_to_favorites', 'handle_add_to_favorites');
+add_action('wp_ajax_nopriv_add_to_favorites', 'handle_add_to_favorites_nopriv');
+
+// Přidání do oblíbených
+add_action('wp_ajax_add_to_favorites', function() {
+    $recipe_id = intval($_POST['recipe_id']);
+    $user_id = get_current_user_id();
+    $favorites = get_user_meta($user_id, 'favorite_recipes', true);
+
+    if (!is_array($favorites)) {
+        $favorites = [];
+    }
+
+    if (!in_array($recipe_id, $favorites)) {
+        $favorites[] = $recipe_id;
+        update_user_meta($user_id, 'favorite_recipes', $favorites);
+        wp_send_json_success(['message' => 'Recept byl přidán do oblíbených.']);
+    } else {
+        wp_send_json_error(['message' => 'Recept je již v oblíbených.']);
+    }
+});
+
+// Odebrání z oblíbených
+add_action('wp_ajax_remove_from_favorites', function() {
+    $recipe_id = intval($_POST['recipe_id']);
+    $user_id = get_current_user_id();
+    $favorites = get_user_meta($user_id, 'favorite_recipes', true);
+
+    if (($key = array_search($recipe_id, $favorites)) !== false) {
+        unset($favorites[$key]);
+        update_user_meta($user_id, 'favorite_recipes', $favorites);
+        wp_send_json_success(['message' => 'Recept byl odebrán z oblíbených.']);
+    } else {
+        wp_send_json_error(['message' => 'Recept nebyl nalezen v oblíbených.']);
+    }
+});
