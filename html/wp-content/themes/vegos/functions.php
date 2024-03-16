@@ -22,3 +22,16 @@ function vegos_login_page_redirect() {
     }
 }
 add_action('init','vegos_login_page_redirect');
+
+function vegos_save_my_ingredients() {
+    if ( ! isset( $_POST['my_ingredients_nonce'] ) || ! wp_verify_nonce( $_POST['my_ingredients_nonce'], 'update_my_ingredients' ) ) {
+        return;
+    }
+
+    if ( isset( $_POST['ingredients'] ) && is_user_logged_in() ) {
+        $current_user = wp_get_current_user();
+        $ingredients = array_map( 'sanitize_text_field', $_POST['ingredients'] );
+        update_user_meta( $current_user->ID, 'my_ingredients', $ingredients );
+    }
+}
+add_action( 'template_redirect', 'vegos_save_my_ingredients' );
